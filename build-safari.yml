@@ -1,0 +1,33 @@
+name: Build Safari Extension
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-latest # This spins up a free cloud Mac runner
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Convert Web Extension for iOS
+      run: |
+        # Run Apple's built-in tool on macOS to convert the extension folder
+        xcrun safari-web-extension-converter ./extension-source \
+          --ios-only \
+          --bundle-identifier "com.yourname.safariparentalcontrol" \
+          --project-output-path ./built-output \
+          --force
+      
+    - name: Archive Built Project
+      run: |
+        # Zip up the generated Xcode project so you can download it easily
+        zip -r safari-extension-project.zip ./built-output
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: iOS-Safari-Extension
+        path: safari-extension-project.zip
